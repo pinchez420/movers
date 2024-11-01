@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trips Management</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-image: url('dispatchers.jpg'); /* Replace with your custom background image */
+            background-size: cover; /* Cover the entire background */
+            background-position: center; /* Center the background image */
+            color: #343a40; /* Dark text for contrast */
+        }
+        .container {
+            margin-top: 20px;
+            background-color: rgba(108, 134, 250, 0.9); /* Translucent white background for the container */
+            border-radius: 10px; /* Rounded corners */
+            padding: 20px; /* Padding inside the container */
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* Add shadow effect */
+        }
+        h1, h2 {
+            color: #010203; /* Bootstrap primary color for headings */
+        }
+        .input-group {
+            margin-bottom: 20px; /* Space between search bar and table */
+        }
+        table {
+            margin-top: 20px;
+            border-collapse: separate; /* Ensures that table cell borders are not collapsed */
+            border-spacing: 0; /* Remove spacing between borders */
+        }
+        th {
+            background-color: #007bff; /* Header background color */
+            color: white; /* Header text color */
+            border-top-left-radius: 10px; /* Rounded corners for the top left */
+            border-top-right-radius: 10px; /* Rounded corners for the top right */
+        }
+        td {
+            background-color: rgb(101, 98, 236); /* Light translucent background for table cells */
+            border: 1px solid #dee2e6; /* Border for table cells */
+        }
+        .btn-warning {
+            background-color: #ffc107; /* Custom color for the Edit button */
+            border-color: #ffc107; /* Border color matching button color */
+        }
+        .modal-content {
+            border-radius: 10px; /* Rounded corners for the modal */
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1 class="text-center">Trips Management</h1>
+
+        <!-- Search Bar -->
+        <div class="input-group mb-3">
+            <input type="text" id="search-input" class="form-control" placeholder="Search by Customer Name or Driver Name">
+            <div class="input-group-append">
+                <button id="search-btn" class="btn btn-outline-secondary">Search</button>
+            </div>
+        </div>
+
+        <!-- Table to display trips -->
+        <h2 class="mt-4">List of Trips</h2>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Trip ID</th>
+                    <th>Customer Name</th>
+                    <th>Route Name</th>
+                    <th>Driver Name</th>
+                    <th>Phone</th>
+                    <th>License Number</th>
+                    <th>Status</th>
+                    <th>Payments</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="trip-list">
+                <!-- Trip entries will be populated here -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Modal for Editing Trip -->
+    <div class="modal fade" id="editTripModal" tabindex="-1" role="dialog" aria-labelledby="editTripModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editTripModalLabel">Edit Trip</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="edit-trip-form">
+                        <input type="hidden" id="edit-TripID">
+                        <div class="form-group">
+                            <label for="edit-CustomerName">Customer Name</label>
+                            <input type="text" class="form-control" id="edit-CustomerName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-RouteName">Route Name</label>
+                            <input type="text" class="form-control" id="edit-RouteName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-DriverName">Driver Name</label>
+                            <input type="text" class="form-control" id="edit-DriverName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-Phone">Phone</label>
+                            <input type="text" class="form-control" id="edit-Phone" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-LicenseNumber">License Number</label>
+                            <input type="text" class="form-control" id="edit-LicenseNumber" required>
+                        </div>
+                        <div class="form-group">
+                             <label for="edit-Status">Status</label>
+                               <select class="form-control" id="edit-Status" required>
+                              <option value="">--Select Status--</option>
+                                <option value="pending">Pending</option>
+                                <option value="delivered">Delivered</option>
+                                </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="edit-Payments">Payments</label>
+                            <input type="text" class="form-control" id="edit-Payments" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Function to fetch and display trips
+        function fetchTrips(searchQuery = '') {
+            fetch(`http://127.0.0.1:5000/trips?search=${encodeURIComponent(searchQuery)}`)
+                .then(response => {
+                    if (!response.ok) throw new Error("Error fetching trips");
+                    return response.json();
+                })
+                .then(data => {
+                    const tripList = document.getElementById('trip-list');
+                    tripList.innerHTML = ''; // Clear existing entries
+                    data.forEach(trip => {
+                        const row = `<tr>
+                                        <td>${trip.TripID}</td>
+                                        <td>${trip.CustomerName}</td>
+                                        <td>${trip.RouteName}</td>
+                                        <td>${trip.DriverName}</td>
+                                        <td>${trip.Phone}</td>
+                                        <td>${trip.LicenseNumber}</td>
+                                        <td>${trip.Status}</td>
+                                        <td>${trip.Payments}</td>
+                                        <td>
+                                            <button class="btn btn-warning btn-sm" onclick="openEditModal(${trip.TripID}, '${trip.CustomerName}', '${trip.RouteName}', '${trip.DriverName}', '${trip.Phone}', '${trip.LicenseNumber}', '${trip.Status}', '${trip.Payments}')">Edit</button>
+                                        </td>
+                                    </tr>`;
+                        tripList.innerHTML += row;
+                    });
+                })
+                .catch(error => console.error('Error fetching trips:', error));
+        }
+
+        // Open edit modal and populate fields
+        function openEditModal(tripID, customerName, routeName, driverName, phone, licenseNumber, status, payments) {
+            document.getElementById('edit-TripID').value = tripID;
+            document.getElementById('edit-CustomerName').value = customerName;
+            document.getElementById('edit-RouteName').value = routeName;
+            document.getElementById('edit-DriverName').value = driverName;
+            document.getElementById('edit-Phone').value = phone;
+            document.getElementById('edit-LicenseNumber').value = licenseNumber;
+            document.getElementById('edit-Status').value = status;
+            document.getElementById('edit-Payments').value = payments;
+            $('#editTripModal').modal('show');
+        }
+
+        // Handle editing of trip
+        document.getElementById('edit-trip-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const tripID = document.getElementById('edit-TripID').value;
+            const CustomerName = document.getElementById('edit-CustomerName').value;
+            const RouteName = document.getElementById('edit-RouteName').value;
+            const DriverName = document.getElementById('edit-DriverName').value;
+            const Phone = document.getElementById('edit-Phone').value;
+            const LicenseNumber = document.getElementById('edit-LicenseNumber').value;
+            const Status = document.getElementById('edit-Status').value;
+            const Payments = document.getElementById('edit-Payments').value;
+
+            fetch(`http://127.0.0.1:5000/update_trip/${tripID}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ CustomerName, RouteName, DriverName, Phone, LicenseNumber, Status, Payments })
+            })
+            .then(response => {
+                if (!response.ok) throw new Error("Error updating trip");
+                return response.json();
+            })
+            .then(data => {
+                alert(data.message || "Trip updated successfully");
+                $('#editTripModal').modal('hide');
+                fetchTrips(); // Refresh the trip list
+            })
+            .catch(error => {
+                console.error('Error updating trip:', error);
+                alert('There was an error updating the trip. Please try again.');
+            });
+        });
+
+        // Search button functionality
+        document.getElementById('search-btn').addEventListener('click', function() {
+            const searchQuery = document.getElementById('search-input').value;
+            fetchTrips(searchQuery); // Fetch trips based on search input
+        });
+
+        // Fetch trips on page load
+        fetchTrips();
+    </script>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

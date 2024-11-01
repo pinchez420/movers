@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Manage Users</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body { 
+            background-color: #f4f6f9; 
+            background-image: url('pexels-elevate-1267325.jpg'); /* Replace with your custom background image URL */
+            background-size: cover;
+            background-repeat: no-repeat;
+        }
+        .header { 
+            background-color: #007bff; /* Blue theme */
+            color: #ffffff; 
+            padding: 20px; 
+            text-align: center; 
+            font-weight: bold; 
+            border-radius: 8px; /* Rounded corners */
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+        }
+        .container { 
+            margin-top: 30px; 
+            background-color: rgba(255, 255, 255, 0.8); /* Semi-transparent white background */
+            border-radius: 8px; 
+            padding: 20px; 
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2); /* Shadow for depth */
+        }
+        h2 { 
+            color: #343a40; 
+            font-weight: bold; 
+        }
+        .search-bar { 
+            width: 100%; 
+            max-width: 400px; 
+            margin-bottom: 20px; 
+        }
+        .table-container { 
+            overflow-x: auto; 
+            border-radius: 8px; 
+            background-color: #a7d1f8; 
+            padding: 20px; 
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1); 
+        }
+        .table thead { 
+            background-color: #007bff; 
+            color: #ffffff; 
+        }
+        .btn-warning, .btn-danger, .btn-primary { 
+            font-size: 0.9rem; 
+            padding: 5px 10px; 
+        }
+        .modal-header { 
+            background-color: #007bff; 
+            color: #ffffff; 
+        }
+        .modal-content { 
+            border-radius: 8px; 
+        }
+        .loading { 
+            display: none; 
+            text-align: center; 
+            margin-top: 20px; 
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>User Management</h1>
+    </div>
+
+    <div class="container">
+        <h2>Users</h2>
+        
+        <!-- Button to Open Add User Modal -->
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addUserModal">Add User</button>
+
+        <!-- Search Bar -->
+        <div class="form-group">
+            <input type="text" id="search-bar" class="form-control search-bar" placeholder="Search by username or role...">
+        </div>
+
+        <!-- Loading Indicator -->
+        <div class="loading" id="loading">Loading users...</div>
+
+        <!-- User Table -->
+        <div class="table-container">
+            <table class="table table-hover table-bordered">
+                <thead>
+                    <tr>
+                        <th>UserID</th>
+                        <th>Username</th>
+                        <th>Role</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="user-table">
+                    <!-- User data will be populated here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal for adding a new user -->
+    <div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addUserModalLabel">Add User</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="add-user-form">
+                        <div class="form-group">
+                            <label for="new-username">Username</label>
+                            <input type="text" id="new-username" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="new-password">Password</label>
+                            <input type="password" id="new-password" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="new-role">Role</label>
+                            <select id="new-role" class="form-control" required>
+                                <option value="Admin">Admin</option>
+                                <option value="Driver">Driver</option>
+                                <option value="Customer">Customer</option>
+                                <option value="Dispatcher">Dispatcher</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Add User</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for editing user information -->
+    <div class="modal fade" id="editUserModal" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editUserModalLabel">Edit User</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="edit-user-form">
+                        <input type="hidden" id="edit-user-id">
+                        <div class="form-group">
+                            <label for="edit-username">Username</label>
+                            <input type="text" id="edit-username" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-password">Password (leave empty to keep current)</label>
+                            <input type="password" id="edit-password" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-role">Role</label>
+                            <select id="edit-role" class="form-control" required>
+                                <option value="Admin">Admin</option>
+                                <option value="Driver">Driver</option>
+                                <option value="Customer">Customer</option>
+                                <option value="Dispatcher">Dispatcher</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        let users = [];
+
+        // Fetch and display users
+        function fetchUsers() {
+            document.getElementById('loading').style.display = 'block'; // Show loading
+            fetch('http://127.0.0.1:5000/users')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('loading').style.display = 'none'; // Hide loading
+                    if (Array.isArray(data)) {
+                        users = data;
+                        displayUsers(users);
+                    } else {
+                        alert('Error fetching users');
+                    }
+                })
+                .catch(error => {
+                    document.getElementById('loading').style.display = 'none'; // Hide loading
+                    console.error('Error fetching users:', error);
+                });
+        }
+
+        function displayUsers(usersToDisplay) {
+            const userTable = document.getElementById('user-table');
+            userTable.innerHTML = '';
+            usersToDisplay.forEach(user => {
+                const row = `<tr>
+                    <td>${user.UserID}</td>
+                    <td>${user.Username}</td>
+                    <td>${user.Role}</td>
+                    <td>
+                        <button class="btn btn-warning btn-sm" onclick="editUser(${user.UserID}, '${user.Username}', '${user.Role}')">Edit</button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteUser(${user.UserID})">Delete</button>
+                    </td>
+                </tr>`;
+                userTable.innerHTML += row;
+            });
+        }
+
+        function editUser(id, username, role) {
+            $('#editUserModal').modal('show');
+            document.getElementById('edit-user-id').value = id;
+            document.getElementById('edit-username').value = username;
+            document.getElementById('edit-role').value = role;
+        }
+
+        function deleteUser(userID) {
+            if (confirm("Are you sure you want to delete this user?")) {
+                fetch(`http://127.0.0.1:5000/users/${userID}`, { method: 'DELETE' })
+                    .then(response => {
+                        if (response.ok) {
+                            fetchUsers(); // Refresh users
+                        } else {
+                            alert('Error deleting user');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error deleting user:', error);
+                    });
+            }
+        }
+
+        // Add new user
+document.getElementById('add-user-form').addEventListener('submit', function (event) {
+    event.preventDefault(); // Prevent form submission
+    const username = document.getElementById('new-username').value;
+    const password = document.getElementById('new-password').value;
+    const role = document.getElementById('new-role').value;
+
+    fetch('http://127.0.0.1:5000/users', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ Username: username, Password: password, Role: role }),
+    })
+    .then(response => {
+        if (response.ok) {
+            $('#addUserModal').modal('hide'); // Close modal
+            fetchUsers(); // Refresh users
+        } else {
+            alert('Error adding user');
+        }
+    })
+    .catch(error => {
+        console.error('Error adding user:', error);
+    });
+});
+
+
+        // Save changes for editing user
+        document.getElementById('edit-user-form').addEventListener('submit', function (event) {
+            event.preventDefault(); // Prevent form submission
+            const id = document.getElementById('edit-user-id').value;
+            const Username = document.getElementById('edit-username').value;
+            const Password = document.getElementById('edit-password').value;
+            const Role = document.getElementById('edit-role').value;
+
+            const updatedUser = { Username, Role };
+            if (Password) updatedUser.Password = Password; // Include password only if it's provided
+
+            fetch(`http://127.0.0.1:5000/users/${id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(updatedUser),
+            })
+            .then(response => {
+                if (response.ok) {
+                    $('#editUserModal').modal('hide'); // Close modal
+                    fetchUsers(); // Refresh users
+                } else {
+                    alert('Error updating user');
+                }
+            })
+            .catch(error => {
+                console.error('Error updating user:', error);
+            });
+        });
+
+        // Search functionality
+        document.getElementById('search-bar').addEventListener('input', function () {
+            const query = this.value.toLowerCase();
+            const filteredUsers = users.filter(user => user.Username.toLowerCase().includes(query) || user.Role.toLowerCase().includes(query));
+            displayUsers(filteredUsers);
+        });
+
+        // Initialize
+        fetchUsers();
+    </script>
+</body>
+</html>
