@@ -57,9 +57,15 @@
             margin-top: 30px;
             background-color: rgba(115, 117, 248, 0.9); /* Semi-transparent white background */
             border-radius: 8px;
+            width: 100%;
+            table-layout: auto;
         }
         th, td {
             color: #333; /* Darker text for table for better readability */
+        }
+        .table-responsive {
+            overflow-x: auto;
+            width: 100%;
         }
     </style>
 </head>
@@ -119,7 +125,8 @@
 
         <!-- Trips Table -->
         <h2 class="mt-4">Upcoming Trips</h2>
-        <table id="trips-table" class="table table-bordered">
+        <div class="table-responsive">
+          <table id="trips-table" class="table table-bordered">
             <thead>
                 <tr>
                     <th>Trip ID</th>
