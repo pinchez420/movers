@@ -48,6 +48,8 @@
         .table {
             background-color: rgba(255, 255, 255, 0.1); /* Semi-transparent white for table */
             color: #ffffff; /* White text for table */
+            width: 100%;
+            table-layout: auto;
         }
 
         .table th, .table td {
@@ -75,6 +77,10 @@
 
         .alert {
             display: none; /* Hidden by default, shown when needed */
+        }
+        .table-responsive {
+            overflow-x: auto;
+            width: 100%;
         }
     </style>
 </head>
@@ -112,6 +118,7 @@
 
         <!-- Section to display Drivers -->
         <h2 class="mt-4">Drivers List</h2>
+        <div class="table-responsive">
         <table class="table table-striped" id="drivers-list">
             <thead>
                 <tr>
@@ -126,6 +133,7 @@
                 <!-- Driver entries will be populated here -->
             </tbody>
         </table>
+        </div>
 
         <!-- Success and Error Messages -->
         <div id="message" class="alert" style="display:none;"></div>
