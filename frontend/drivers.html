@@ -23,7 +23,7 @@
         }
 
         .navbar-brand, .nav-link {
-            color: #131212 !important; /* White color for navbar text */
+            color: #ffffff !important; /* White color for navbar text */
         }
 
         .nav-link:hover {
@@ -105,6 +105,11 @@
         </div>
     </div>
 
+    <!-- Required scripts for Bootstrap components -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
     <!-- Leaflet.js script -->
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <script>
@@ -122,39 +127,33 @@
         }
 
         // Handle form submission
-document.getElementById('addDriverForm').addEventListener('submit', function(event) {
-    event.preventDefault(); // Prevent the form from submitting normally
+        document.getElementById('addDriverForm').addEventListener('submit', function(event) {
+            event.preventDefault();
 
-    // Gather form data
-    const driverData = {
-        DriverName: document.getElementById('driverName').value.trim(), // Ensure no leading/trailing spaces
-        Phone: document.getElementById('phone').value.trim(),          // Ensure no leading/trailing spaces
-        Availability: document.getElementById('availability').value.trim() // Ensure no leading/trailing spaces
-    };
+            // Gather form data
+            const driverData = {
+                DriverName: document.getElementById('driverName').value.trim(),
+                Phone: document.getElementById('phone').value.trim(),
+                Availability: document.getElementById('availability').value.trim()
+            };
 
-    // Send POST request to add driver
-    fetch('http://127.0.0.1:5000/drivers', {  // Update the URL if needed
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(driverData) // Convert the driverData object to JSON
-    })
-    .then(response => {
-        console.log('Response status:', response.status); // Log the status
-        return response.json(); // Parse the JSON response
-    })
-    .then(data => {
-        console.log('Response data:', data); // Log the data
-        document.getElementById('responseMessage').innerText = data.message; // Display success message
-        document.getElementById('addDriverForm').reset(); // Reset the form
-    })
-    .catch(error => {
-        console.error('Fetch error:', error); // Log any fetch errors
-        document.getElementById('responseMessage').innerText = 'Error adding driver: ' + error.message; // Display error message
-    });
-});
-
+            // Send POST request to add driver
+            fetch('http://127.0.0.1:5000/drivers', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(driverData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('responseMessage').innerText = data.message;
+                document.getElementById('addDriverForm').reset();
+            })
+            .catch(error => {
+                document.getElementById('responseMessage').innerText = 'Error adding driver: ' + error.message;
+            });
+        });
     </script>
 </body>
 </html>
