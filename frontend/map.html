@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Routes Display - Movers Transport System</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #e0f7fa; /* Light blue custom background */
+            font-family: Arial, sans-serif;
+        }
+        .header {
+            background-color: #007bff; /* Blue header */
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        .content {
+            margin: 20px;
+        }
+        #map {
+            height: 500px;
+            width: 100%;
+            margin-top: 20px;
+        }
+        h1, h2 {
+            color: #004085; /* Darker blue for headers */
+        }
+        .custom-button {
+            background-color: #0056b3; /* Custom dark blue button */
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+        .custom-button:hover {
+            background-color: #004085;
+        }
+        .route-form {
+            margin-top: 40px;
+            padding: 20px;
+            background-color: #f1f8ff;
+            border-radius: 8px;
+        }
+        label {
+            font-weight: bold;
+            color: #004085;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+        }
+        .table-container {
+            margin-top: 40px;
+        }
+        .table {
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 12px;
+            text-align: center;
+        }
+        th {
+            background-color: #007bff;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>Available Routes</h1>
+    </div>
+
+    <div class="container content">
+        <!-- Leaflet.js Map for Route Display -->
+        <div id="map"></div>
+
+        <!-- Search Bar for Filtering Routes -->
+        <div class="mb-3">
+            <input type="text" id="searchBar" placeholder="Search by Route Name or Location" class="form-control" onkeyup="filterRoutes()">
+        </div>
+
+        <!-- Table to Display Routes -->
+        <div class="table-container">
+            <h3 class="mb-4">Route List</h3>
+            <table class="table table-bordered" id="routes-table">
+                <thead>
+                    <tr>
+                        <th>Route ID</th>
+                        <th>Start Location</th>
+                        <th>End Location</th>
+                        <th>Route Name</th>
+                        <th>Payments</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Routes data will be populated here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Leaflet.js script -->
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script>
+        // Initialize the map centered on Nairobi
+        var map = L.map('map').setView([-1.286389, 36.817223], 12);  // Coordinates for Nairobi
+
+        // Add OpenStreetMap tiles
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        let allRoutes = []; // To store all routes for filtering
+
+        // Function to fetch routes from the database
+        function fetchRoutes() {
+            fetch('http://127.0.0.1:5000/routes')
+                .then(response => {
+                    if (!response.ok) throw new Error("Network response was not ok");
+                    return response.json();
+                })
+                .then(routes => {
+                    allRoutes = routes; // Store routes for filtering
+                    populateRoutesTable(allRoutes); // Populate table with all routes
+                })
+                .catch(error => console.error('Error fetching routes:', error));
+        }
+
+        // Function to populate the routes table
+        function populateRoutesTable(routes) {
+            const routesTableBody = document.querySelector('#routes-table tbody');
+            routesTableBody.innerHTML = ''; // Clear existing entries
+            
+            routes.forEach(route => {
+                const row = `
+                    <tr>
+                        <td>${route.RouteID}</td>
+                        <td>${route.StartLocation}</td>
+                        <td>${route.EndLocation}</td>
+                        <td>${route.RouteName}</td>
+                        <td>${route.Payments}</td>
+                    </tr>
+                `;
+                routesTableBody.innerHTML += row; // Add new row to the table
+            });
+        }
+
+        // Function to filter routes based on the search bar input
+        function filterRoutes() {
+            const searchInput = document.getElementById('searchBar').value.toLowerCase();
+            const filteredRoutes = allRoutes.filter(route => {
+                return (
+                    route.RouteName.toLowerCase().includes(searchInput) ||
+                    route.StartLocation.toLowerCase().includes(searchInput) ||
+                    route.EndLocation.toLowerCase().includes(searchInput)
+                );
+            });
+            populateRoutesTable(filteredRoutes); // Update the table with filtered routes
+        }
+
+        // Fetch routes on page load
+        fetchRoutes();
+    </script>
+
+</body>
+</html>

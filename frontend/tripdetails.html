@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trip Details</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-image: url('pexels-elevate-1267325.jpg'); /* Replace with your custom background image */
+            background-size: cover; /* Ensure the background covers the entire page */
+            background-position: center; /* Center the background image */
+            color: #34403e; /* Dark text for contrast */
+        }
+        .container {
+            margin-top: 20px;
+            background-color: rgba(90, 111, 180, 0.9); /* Light background for content */
+            border-radius: 10px; /* Rounded corners */
+            padding: 20px; /* Add padding inside the container */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Add shadow effect */
+        }
+        .card {
+            margin-bottom: 20px;
+            background-color: rgba(255, 255, 255, 0.8); /* Translucent background for cards */
+            border: none; /* Remove card border */
+        }
+        .card-header {
+            background-color: #007bff; /* Header background color */
+            color: white; /* Header text color */
+        }
+        .table th {
+            background-color: #007bff; /* Table header background color */
+            color: white; /* Table header text color */
+        }
+        #search-bar {
+            margin-bottom: 20px;
+        }
+        .table-striped tbody tr:hover {
+            background-color: rgba(233, 236, 239, 0.5); /* Highlight row on hover */
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1 class="text-center">Trip Details</h1>
+
+        <!-- Form to add new trip details -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">Add New Trip</h2>
+            </div>
+            <div class="card-body">
+                <form id="trip-form">
+                    <div class="form-group">
+                        <label for="CustomerName">Customer Name</label>
+                        <input type="text" class="form-control" id="CustomerName" name="CustomerName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="RouteName">Route Name</label>
+                        <input type="text" class="form-control" id="RouteName" name="RouteName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="DriverName">Driver Name</label>
+                        <input type="text" class="form-control" id="DriverName" name="DriverName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="Phone">Phone</label>
+                        <input type="text" class="form-control" id="Phone" name="Phone" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="LicenseNumber">License Number</label>
+                        <input type="text" class="form-control" id="LicenseNumber" name="LicenseNumber" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="Status">Status</label>
+                        <input type="text" class="form-control" id="Status" name="Status" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="Payments">Payments</label>
+                        <input type="text" class="form-control" id="Payment" name="Payments" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Add Trip</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Search Bar -->
+        <div id="search-bar">
+            <input type="text" class="form-control" id="searchInput" placeholder="Search by Trip ID or Customer Name">
+        </div>
+
+        <!-- Table to display trip details -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">Trip Details</h2>
+            </div>
+            <div class="card-body">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Trip ID</th>
+                            <th>Customer Name</th>
+                            <th>Start Location</th>
+                            <th>End Location</th>
+                            <th>Weight (Tonnes)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="trip-list">
+                        <!-- Trip entries will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div id="customer-search-bar" style="margin-bottom: 20px;">
+            <input type="text" class="form-control" id="customerSearchInput" placeholder="Search by Customer ID or Customer Name">
+        </div>
+         <!-- Section to display customer details -->
+    <div class="container mt-5">
+        <h2 class="text-center">Customer Details</h2>
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Customers List</h3>
+            </div>
+            <div class="card-body">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Customer ID</th>
+                            <th>Customer Name</th>
+                            <th>Phone</th>
+                            <th>Location</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="customer-list">
+                        <!-- Customer entries will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <script>
+        // Function to fetch and display trip details
+        function fetchTripDetails() {
+            fetch('http://127.0.0.1:5000/tripdetails')
+                .then(response => {
+                    if (!response.ok) throw new Error("Network response was not ok");
+                    return response.json();
+                })
+                .then(data => {
+                    const tripList = document.getElementById('trip-list');
+                    tripList.innerHTML = ''; // Clear existing entries
+                    data.forEach(trip => {
+                        const row = `<tr>
+                                        <td>${trip.tripID}</td>
+                                        <td>${trip.CustomerName}</td>
+                                        <td>${trip.StartLocation}</td>
+                                        <td>${trip.EndLocation}</td>
+                                        <td>${trip.Weight_tonnes}</td>
+                                    </tr>`;
+                        tripList.innerHTML += row;
+                    });
+                })
+                .catch(error => console.error('Error fetching trip details:', error));
+        }
+
+        // Search function
+        document.getElementById('searchInput').addEventListener('keyup', function() {
+            const filter = this.value.toLowerCase();
+            const rows = document.querySelectorAll('#trip-list tr');
+
+            rows.forEach(row => {
+                const cells = row.getElementsByTagName('td');
+                const tripID = cells[0].textContent.toLowerCase();
+                const customerName = cells[1].textContent.toLowerCase();
+
+                if (tripID.includes(filter) || customerName.includes(filter)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+
+        // Submit trip form
+        document.getElementById('trip-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const CustomerName = document.getElementById('CustomerName').value.trim();
+            const RouteName = document.getElementById('RouteName').value.trim();
+            const DriverName = document.getElementById('DriverName').value.trim();
+            const Phone = document.getElementById('Phone').value.trim();
+            const LicenseNumber = document.getElementById('LicenseNumber').value.trim();
+            const Status = document.getElementById('Status').value.trim();
+            const Payments = document.getElementById('Payments').value.trim();
+
+            fetch('http://127.0.0.1:5000/add_trip', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ CustomerName, RouteName, DriverName, Phone, LicenseNumber, Status, Payments })
+            })
+            .then(response => {
+                if (!response.ok) throw new Error("Failed to add trip details");
+                return response.json();
+            })
+            .then(data => {
+                alert(data.message || "Trip details added successfully");
+                document.getElementById('trip-form').reset();
+                fetchTripDetails(); // Refresh the trip list
+            })
+            .catch(error => {
+                console.error('Error adding trip details:', error);
+                alert('There was an error adding the trip. Please try again.');
+            });
+        });
+
+        // Fetch trip details on page load
+        fetchTripDetails();
+        // Function to fetch and display customer details
+        function fetchCustomerDetails() {
+            fetch('http://127.0.0.1:5000/customers')
+                .then(response => {
+                    if (!response.ok) throw new Error("Failed to fetch customer details");
+                    return response.json();
+                })
+                .then(data => {
+                    const customerList = document.getElementById('customer-list');
+                    customerList.innerHTML = ''; // Clear existing entries
+                    data.forEach(customer => {
+                        const row = `<tr>
+                                        <td>${customer.CustomersID}</td>
+                                        <td>${customer.CustomerName}</td>
+                                        <td>${customer.Phone}</td>
+                                        <td>${customer.Location}</td>
+                                        <td><button class="btn btn-danger btn-sm" onclick="deleteCustomer(${customer.CustomersID})">Delete</button></td>
+                                    </tr>`;
+                        customerList.innerHTML += row;
+                    });
+                })
+                .catch(error => console.error('Error fetching customer details:', error));
+        }
+
+        
+        // Customer Search function
+    document.getElementById('customerSearchInput').addEventListener('keyup', function() {
+    const filter = this.value.toLowerCase();
+    const rows = document.querySelectorAll('#customer-list tr');
+
+    rows.forEach(row => {
+        const cells = row.getElementsByTagName('td');
+        const customerID = cells[0].textContent.toLowerCase();
+        const customerName = cells[1].textContent.toLowerCase();
+
+        if (customerID.includes(filter) || customerName.includes(filter)) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+});
+// Function to delete a customer by ID
+function deleteCustomer(customerID) {
+    if (!confirm("Are you sure you want to delete this customer?")) return; // Confirm before deleting
+
+    fetch(`http://127.0.0.1:5000/delete_customer/${customerID}`, {
+        method: 'DELETE',
+    })
+    .then(response => {
+        if (!response.ok) throw new Error("Failed to delete customer");
+        return response.json();
+    })
+    .then(data => {
+        alert(data.message || "Customer deleted successfully");
+        fetchCustomerDetails(); // Refresh the customer list after deletion
+    })
+    .catch(error => {
+        console.error('Error deleting customer:', error);
+        alert('There was an error deleting the customer. Please try again.');
+    });
+}
+
+// Fetch customer details on page load
+fetchCustomerDetails();
+    </script>
+
+</body>
+</html>

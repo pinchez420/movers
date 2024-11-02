@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Dashboard</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <style>
+        body {
+            background-image: url('pexels-elevate-1267325.jpg'); /* Replace with your image path */
+            background-size: cover;
+            background-position: center;
+            color: #fff; /* Set text color to white for better contrast */
+        }
+        h1, h2 {
+            color: #080808; /* Bootstrap primary blue */
+        }
+        #map {
+            height: 400px;
+            width: 100%;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+        form {
+            margin-top: 20px;
+            background-color: rgba(255, 255, 255, 0.8); /* Semi-transparent white background */
+            padding: 20px;
+            border-radius: 8px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #007bff; /* Blue for labels */
+        }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            border: 1px solid #007bff; /* Blue border */
+        }
+        input:focus, select:focus {
+            border-color: #0056b3; /* Darker blue on focus */
+            outline: none;
+        }
+        #logout-btn {
+            margin-top: 20px;
+            background-color: #08861d; /* Red for logout button */
+            border: none;
+        }
+        #logout-btn:hover {
+            background-color: #c82333; /* Darker red on hover */
+        }
+        #trips-table {
+            margin-top: 30px;
+            background-color: rgba(115, 117, 248, 0.9); /* Semi-transparent white background */
+            border-radius: 8px;
+        }
+        th, td {
+            color: #333; /* Darker text for table for better readability */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center mt-4">Customer Dashboard</h1>
+
+        <div class="mb-3">
+            <a href="map.html" class="btn btn-primary">Open Map</a>
+        </div>
+
+        <!-- Logout Button -->
+        <div class="text-right">
+            <button id="logout-btn" class="btn">Logout</button>
+        </div>
+
+        <!-- Leaflet.js Map for Vehicle Tracking -->
+        <div id="map"></div>
+
+        <!-- Form to add customer details -->
+        <h2>Submit Your Information</h2>
+        <form id="customer-form">
+            <label for="customer-name">Your Name</label>
+            <input type="text" id="customer-name" name="customer-name" required>
+
+            <label for="phone">Phone Number</label>
+            <input type="text" id="phone" name="phone" required>
+
+            <label for="location">Your Location</label>
+            <input type="text" id="location" name="location" required>
+
+            <button type="submit" class="btn btn-primary">Submit Information</button>
+        </form>
+
+        <!-- Form to request a trip -->
+        <h2 class="mt-4">Request a Trip</h2>
+        <form id="trip-form">
+            <label for="customer-name">Customer Name</label>
+            <input type="text" id="customer-name" name="customer-name" required>
+
+            <label for="start-location">Start Location</label>
+            <input type="text" id="start-location" name="start-location" required>
+
+            <label for="end-location">End Location</label>
+            <input type="text" id="end-location" name="end-location" required>
+
+            <label for="weight">Weight (Tonnes)</label>
+            <input type="number" id="weight" name="weight" min="0" required>
+
+            <button type="submit" class="btn btn-success">Request Trip</button>
+        </form>
+
+        <!-- Search Trips Section -->
+        <h2 class="mt-4">Search Trips</h2>
+        <input type="text" id="search-input" class="form-control" placeholder="Search by Customer Name or Trip ID">
+        <button id="search-btn" class="btn btn-info mt-2">Search</button>
+
+        <!-- Trips Table -->
+        <h2 class="mt-4">Upcoming Trips</h2>
+        <table id="trips-table" class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Trip ID</th>
+                    <th>Customer Name</th>
+                    <th>Route Name</th>
+                    <th>Driver Name</th>
+                    <th>Phone</th>
+                    <th>License Number</th>
+                    <th>Status</th>
+                    <th>Payments</th>
+                </tr>
+            </thead>
+            <tbody id="trips-tbody">
+                <!-- Trip details will be inserted here dynamically -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Leaflet.js script -->
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script>
+        // Initialize the map centered on Nairobi
+        var map = L.map('map').setView([-1.286389, 36.817223], 13);  // Coordinates for Nairobi
+
+        // Add OpenStreetMap tiles
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Fetch and display trips
+        function fetchTrips(searchQuery = '') {
+            fetch(`http://127.0.0.1:5000/trips?search=${encodeURIComponent(searchQuery)}`)
+                .then(response => response.json())
+                .then(trips => {
+                    const tbody = document.getElementById('trips-tbody');
+                    tbody.innerHTML = ''; // Clear existing data
+
+                    trips.forEach(trip => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${trip.TripID}</td>
+                            <td>${trip.CustomerName}</td>
+                            <td>${trip.RouteName}</td>
+                            <td>${trip.DriverName}</td>
+                            <td>${trip.Phone}</td>
+                            <td>${trip.LicenseNumber}</td>
+                            <td>${trip.Status}</td>
+                            <td>${trip.Payments}</td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+                })
+                .catch(error => console.error('Error fetching trips:', error));
+        }
+
+        // Call the fetchTrips function to load trips on page load
+        window.onload = fetchTrips;
+
+        // Search button functionality
+        document.getElementById('search-btn').addEventListener('click', function() {
+            const searchQuery = document.getElementById('search-input').value;
+            fetchTrips(searchQuery); // Fetch trips based on search input
+        });
+
+        // Submit customer details form
+        document.getElementById('customer-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const customerName = document.getElementById('customer-name').value;
+            const phone = document.getElementById('phone').value;
+            const location = document.getElementById('location').value;
+
+            fetch('http://127.0.0.1:5000/customers', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ CustomerName: customerName, Phone: phone, Location: location })
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                document.getElementById('customer-form').reset();
+                fetchTrips();  // Refresh trips after submitting customer info
+            })
+            .catch(error => console.error('Error submitting customer details:', error));
+        });
+
+        // Submit trip request form
+        document.getElementById('trip-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            // Retrieve form data
+            const customerName = document.getElementById('customer-name').value;
+            const startLocation = document.getElementById('start-location').value;
+            const endLocation = document.getElementById('end-location').value;
+            const weightTonnes = document.getElementById('weight').value;
+
+            // Send a POST request to the backend to create a trip
+            fetch('http://127.0.0.1:5000/tripdetails', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    CustomerName: customerName,
+                    StartLocation: startLocation,
+                    EndLocation: endLocation,
+                    Weight_tonnes: weightTonnes
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                document.getElementById('trip-form').reset();
+                fetchTrips();  // Refresh trips after submitting trip request
+            })
+            .catch(error => console.error('Error requesting trip:', error));
+        });
+
+        // Logout button functionality
+        document.getElementById('logout-btn').addEventListener('click', function() {
+            window.location.href = 'index.html';
+        });
+    </script>
+</body>
+</html>

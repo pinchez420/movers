@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dispatcher Dashboard - Movers Transport System</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <style>
+        body {
+            background-image: url('dispatchers.jpg'); /* Replace with your image path */
+            background-size: cover;
+            background-position: center;
+            color: #ffffff; /* Default text color to white */
+        }
+
+        h1, h2 {
+            color: #007bff; /* Bootstrap primary blue */
+        }
+
+        .navbar {
+            background-color: rgba(0, 123, 255, 0.9); /* Semi-transparent blue */
+        }
+
+        .navbar-brand, .nav-link {
+            color: #ffffff !important; /* White color for navbar text */
+        }
+
+        .nav-link:hover {
+            color: #cce5ff !important; /* Light blue on hover */
+        }
+
+        #map {
+            height: 400px;
+            width: 100%;
+            margin-top: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .container {
+            margin-top: 20px;
+            background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black background for content */
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .table {
+            background-color: rgba(255, 255, 255, 0.1); /* Semi-transparent white for table */
+            color: #ffffff; /* White text for table */
+        }
+
+        .table th, .table td {
+            border-color: rgba(255, 255, 255, 0.2); /* Light border for table */
+        }
+
+        .modal-content {
+            background-color: rgba(0, 0, 0, 0.8); /* Dark modal background */
+            color: #ffffff; /* White text in modal */
+        }
+
+        .modal-header {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2); /* Light border for modal header */
+        }
+
+        .btn-primary {
+            background-color: #3c14f1; /* Bootstrap primary color */
+            border-color: s#4515f3; /* Bootstrap primary border color */
+        }
+
+        .btn-primary:hover {
+            background-color: #8066f5; 
+            border-color: #426dfa; 
+        }
+
+        .alert {
+            display: none; /* Hidden by default, shown when needed */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center mt-4">Dispatcher Dashboard</h1>
+
+        <!-- Navigation Links -->
+        <nav class="navbar navbar-expand-lg navbar-light">
+            <a class="navbar-brand" href="#">Movers Transport System</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="vehicles.html">Vehicles</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="routes.html">Routes</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="trips.html">Trips</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="tripdetails.html">Trip Details</a>
+                    </li>
+                </ul>
+                <button class="btn btn-danger ml-auto" onclick="logout()">Logout</button>
+            </div>
+        </nav>
+
+        <!-- Leaflet.js Map for Vehicle Tracking -->
+        <div id="map"></div>
+
+        <!-- Section to display Drivers -->
+        <h2 class="mt-4">Drivers List</h2>
+        <table class="table table-striped" id="drivers-list">
+            <thead>
+                <tr>
+                    <th>Driver ID</th>
+                    <th>Driver Name</th>
+                    <th>Phone</th>
+                    <th>Availability</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="driver-list-body">
+                <!-- Driver entries will be populated here -->
+            </tbody>
+        </table>
+
+        <!-- Success and Error Messages -->
+        <div id="message" class="alert" style="display:none;"></div>
+
+        <!-- New Section: Add Dispatcher -->
+        <h2 class="mt-4">Add New Dispatcher</h2>
+        <form id="addDispatcherForm">
+            <div class="form-group">
+                <label for="dispatcherName">Dispatcher Name</label>
+                <input type="text" class="form-control" id="dispatcherName" required>
+            </div>
+            <div class="form-group">
+                <label for="dispatcherPhone">Phone</label>
+                <input type="text" class="form-control" id="dispatcherPhone" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Add Dispatcher</button>
+        </form>
+    </div>
+
+    <!-- Bootstrap Modal for Editing Driver -->
+    <div class="modal fade" id="editDriverModal" tabindex="-1" role="dialog" aria-labelledby="editDriverModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editDriverModalLabel">Edit Driver Availability</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="editDriverForm">
+                        <div class="form-group">
+                            <label for="driverName">Driver Name</label>
+                            <input type="text" class="form-control" id="driverName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="driverPhone">Phone</label>
+                            <input type="text" class="form-control" id="driverPhone" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="driverAvailability">Availability</label>
+                            <select class="form-control" id="driverAvailability" required>
+                                <option value="" disabled selected>Select availability</option>
+                                <option value="Available">Available</option>
+                                <option value="Not Available">Not Available</option>
+                            </select>
+                        </div>
+                        <input type="hidden" id="driverId">
+                        <button type="submit" class="btn btn-primary">Save changes</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Leaflet.js and Bootstrap JS scripts -->
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        // Initialize the map centered on a default location
+        var map = L.map('map').setView([-1.286389, 36.817223], 13);  // Coordinates for Nairobi
+
+        // Add OpenStreetMap tiles
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Base URL for API
+        const baseUrl = 'http://127.0.0.1:5000/drivers';
+
+        // Function to fetch and display drivers
+        function fetchDrivers() {
+            fetch(baseUrl)
+                .then(response => {
+                    if (!response.ok) throw new Error("Network response was not ok");
+                    return response.json();
+                })
+                .then(data => {
+                    displayDrivers(data); // Display the drivers in the table
+                })
+                .catch(error => console.error('Error fetching drivers:', error));
+        }
+
+        // Function to display drivers in the table
+        function displayDrivers(drivers) {
+            const driverListBody = document.getElementById('driver-list-body');
+            driverListBody.innerHTML = ''; // Clear existing entries
+            drivers.forEach(driver => {
+                const row = `<tr>
+                                <td>${driver.DriverID}</td>
+                                <td>${driver.DriverName}</td>
+                                <td>${driver.Phone}</td>
+                                <td>${driver.Availability}</td>
+                                <td><button class="btn btn-primary btn-sm" onclick="openEditDriverModal(${driver.DriverID}, '${driver.DriverName}', '${driver.Phone}', '${driver.Availability}')">Edit</button></td>
+                             </tr>`;
+                driverListBody.innerHTML += row;
+            });
+        }
+
+        // Initialize and fetch drivers on page load
+        fetchDrivers();
+
+        // Open the edit driver modal and populate fields with existing data
+function openEditDriverModal(driverID, driverName, driverPhone, driverAvailability) {
+    document.getElementById('driverId').value = driverID;
+    document.getElementById('driverName').value = driverName;
+    document.getElementById('driverPhone').value = driverPhone;
+    document.getElementById('driverAvailability').value = driverAvailability;
+    $('#editDriverModal').modal('show');
+}
+
+// Handle edit driver form submission
+document.getElementById('editDriverForm').onsubmit = function (e) {
+    e.preventDefault(); // Prevent default form submission
+
+    // Gather input data
+    const driverID = document.getElementById('driverId').value;
+    const driverName = document.getElementById('driverName').value;
+    const driverPhone = document.getElementById('driverPhone').value;
+    const driverAvailability = document.getElementById('driverAvailability').value;
+
+    // PUT request to update the driver
+    fetch(`http://127.0.0.1:5000/drivers/${driverID}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            DriverName: driverName,
+            Phone: driverPhone,
+            Availability: driverAvailability
+        })
+    })
+    .then(response => {
+        if (!response.ok) throw new Error("Network response was not ok");
+        return response.json();
+    })
+    .then(data => {
+        alert(data.message); // Show success message
+        $('#editDriverModal').modal('hide'); // Close the modal
+        fetchDrivers(); // Refresh the driver list
+    })
+    .catch(error => {
+        console.error('Error updating driver:', error);
+        alert('Failed to update driver');
+    });
+};
+
+
+        // Handle add dispatcher form submission
+        document.getElementById('addDispatcherForm').onsubmit = function (e) {
+            e.preventDefault(); // Prevent default form submission
+
+            // Gather input data
+            const dispatcherName = document.getElementById('dispatcherName').value;
+            const dispatcherPhone = document.getElementById('dispatcherPhone').value;
+
+            // URL for dispatchers endpoint
+            const dispatcherUrl = 'http://127.0.0.1:5000/dispatchers';
+
+            // POST request to add a new dispatcher
+            fetch(dispatcherUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    DispatcherName: dispatcherName,
+                    Phone: dispatcherPhone
+                })
+            })
+            .then(response => {
+                if (!response.ok) throw new Error("Network response was not ok");
+                return response.json();
+            })
+            .then(data => {
+                alert(data.message); // Show success message
+                document.getElementById('addDispatcherForm').reset(); // Reset form
+            })
+            .catch(error => {
+                console.error('Error adding dispatcher:', error);
+                alert('Failed to add dispatcher');
+            });
+        };
+
+        // Logout function to handle user logout
+        function logout() {
+            // Perform logout actions (e.g., redirect to login page, clear session)
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>

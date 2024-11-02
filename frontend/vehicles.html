@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vehicles Management</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-image: url('pexels-elevate-1267325.jpg'); /* Set your background image here */
+            background-size: cover; /* Cover the entire viewport */
+            background-position: center; /* Center the background image */
+            color: white; /* Text color for better contrast */
+        }
+        .container {
+            margin-top: 20px;
+            background-color: rgba(152, 141, 252, 0.7); /* Semi-transparent black for contrast */
+            padding: 20px; /* Padding for spacing */
+            border-radius: 10px; /* Rounded corners */
+        }
+        h1, h2 {
+            color: #050e18; /* Bootstrap primary blue color for headings */
+        }
+        table {
+            margin-top: 20px;
+            color: white; /* White text for the table */
+        }
+        th, td {
+            border: 1px solid #007bff; /* Border color for table cells */
+        }
+        th {
+            background-color: #0056b3; /* Darker blue for table header */
+        }
+        .btn-primary {
+            background-color: #007bff; /* Button primary color */
+            border: none; /* Remove border */
+        }
+        .btn-primary:hover {
+            background-color: #0056b3; /* Darker blue on hover */
+        }
+        .alert {
+            margin-top: 20px; /* Space for alerts */
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1 class="text-center">Vehicles Management</h1>
+
+        <!-- Form to add a new vehicle -->
+        <h2>Add New Vehicle</h2>
+        <form id="vehicle-form">
+            <div class="form-group">
+                <label for="LicenseNumber">License Number</label>
+                <input type="text" class="form-control" id="LicenseNumber" name="LicenseNumber" required>
+            </div>
+            <div class="form-group">
+                <label for="VehicleModel">Vehicle Model</label>
+                <input type="text" class="form-control" id="VehicleModel" name="VehicleModel" required>
+            </div>
+            <div class="form-group">
+                <label for="Weight">Weight (Tonnes)</label>
+                <input type="number" class="form-control" id="Weight" name="Weight" min="0" required>
+            </div>
+            <div class="form-group">
+                <label for="status">Status</label>
+                <select class="form-control" id="status" name="status" required>
+                    <option value="active">Available</option>
+                    <option value="inactive">In Use</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Add Vehicle</button>
+        </form>
+
+        <!-- Search bar -->
+        <h2 class="mt-4">Search Vehicles</h2>
+        <input type="text" class="form-control" id="searchInput" placeholder="Search by License Number, Weight or Vehicle Model" onkeyup="searchVehicles()">
+
+        <!-- Table to display vehicles -->
+        <h2 class="mt-4">List of Vehicles</h2>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Vehicle ID</th>
+                    <th>License Number</th>
+                    <th>Vehicle Model</th>
+                    <th>Weight (Tonnes)</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="vehicle-list">
+                <!-- Vehicle entries will be populated here -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Modal for Editing Vehicle -->
+    <div class="modal fade" id="editVehicleModal" tabindex="-1" role="dialog" aria-labelledby="editVehicleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editVehicleModalLabel">Edit Vehicle</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="edit-vehicle-form">
+                        <input type="hidden" id="edit-VehicleID">
+                        <div class="form-group">
+                            <label for="edit-LicenseNumber">License Number</label>
+                            <input type="text" class="form-control" id="edit-LicenseNumber" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-VehicleModel">Vehicle Model</label>
+                            <input type="text" class="form-control" id="edit-VehicleModel" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-Weight">Weight (Tonnes)</label>
+                            <input type="number" class="form-control" id="edit-Weight" min="0" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-status">Status</label>
+                            <select class="form-control" id="edit-status" required>
+                                <option value="active">Available</option>
+                                <option value="inactive">In Use</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let vehiclesData = []; // Store the fetched vehicles data
+
+        // Function to fetch and display vehicles
+        function fetchVehicles() {
+            fetch('http://127.0.0.1:5000/vehicles')
+                .then(response => {
+                    if (!response.ok) throw new Error("Network response was not ok");
+                    return response.json();
+                })
+                .then(data => {
+                    vehiclesData = data; // Store data in a global variable
+                    displayVehicles(vehiclesData); // Display vehicles
+                })
+                .catch(error => console.error('Error fetching vehicles:', error));
+        }
+
+        // Function to display vehicles in the table
+        function displayVehicles(data) {
+            const vehicleList = document.getElementById('vehicle-list');
+            vehicleList.innerHTML = ''; // Clear existing entries
+            data.forEach(vehicle => {
+                const row = `<tr>
+                                <td>${vehicle.VehicleID}</td>
+                                <td>${vehicle.LicenseNumber}</td>
+                                <td>${vehicle.VehicleModel}</td>
+                                <td>${vehicle.Weight}</td>
+                                <td>${vehicle.status}</td>
+                                <td>
+                                    <button class="btn btn-warning btn-sm" onclick="openEditModal(${vehicle.VehicleID}, '${vehicle.LicenseNumber}', '${vehicle.VehicleModel}', ${vehicle.Weight}, '${vehicle.status}')">Edit</button>
+                                </td>
+                            </tr>`;
+                vehicleList.innerHTML += row;
+            });
+        }
+
+        // Open edit modal and populate fields
+        function openEditModal(vehicleID, licenseNumber, vehicleModel, weight, status) {
+            document.getElementById('edit-VehicleID').value = vehicleID;
+            document.getElementById('edit-LicenseNumber').value = licenseNumber;
+            document.getElementById('edit-VehicleModel').value = vehicleModel;
+            document.getElementById('edit-Weight').value = weight;
+            document.getElementById('edit-status').value = status;
+            $('#editVehicleModal').modal('show');
+        }
+
+        // Handle editing of vehicle
+        document.getElementById('edit-vehicle-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const vehicleID = document.getElementById('edit-VehicleID').value;
+            const LicenseNumber = document.getElementById('edit-LicenseNumber').value.trim();
+            const VehicleModel = document.getElementById('edit-VehicleModel').value.trim();
+            const Weight = parseFloat(document.getElementById('edit-Weight').value); // Parse as float
+            const status = document.getElementById('edit-status').value;
+
+            // Input validation
+            if (!LicenseNumber || !VehicleModel || isNaN(Weight) || Weight <= 0) {
+                alert('Please fill in all fields correctly.');
+                return;
+            }
+
+            // Send PUT request to update the vehicle
+            fetch(`http://127.0.0.1:5000/vehicles/${vehicleID}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ LicenseNumber, VehicleModel, Weight, status }) // Use keys directly
+            })
+            .then(response => {
+                if (!response.ok) throw new Error("Failed to update vehicle");
+                return response.json();
+            })
+            .then(data => {
+                alert(data.message || "Vehicle updated successfully");
+                $('#editVehicleModal').modal('hide'); // Close the modal
+                fetchVehicles(); // Refresh the vehicles list
+            })
+            .catch(error => console.error('Error updating vehicle:', error));
+        });
+
+        // Search vehicles based on input
+        function searchVehicles() {
+            const input = document.getElementById('searchInput').value.toLowerCase();
+            const filteredData = vehiclesData.filter(vehicle => {
+                return (
+                    vehicle.LicenseNumber.toLowerCase().includes(input) ||
+                    vehicle.VehicleModel.toLowerCase().includes(input) ||
+                    vehicle.Weight.toString().includes(input)
+                );
+            });
+            displayVehicles(filteredData);
+        }
+
+        // Fetch vehicles on page load
+        window.onload = fetchVehicles;
+    </script>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
