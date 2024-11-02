@@ -24,6 +24,8 @@
         table {
             margin-top: 20px;
             color: white; /* White text for the table */
+            width: 100%;
+            table-layout: auto;
         }
         th, td {
             border: 1px solid #007bff; /* Border color for table cells */
@@ -41,6 +43,10 @@
         .alert {
             margin-top: 20px; /* Space for alerts */
         }
+        .table-responsive {
+            overflow-x: auto;
+            width: 100%;
+}
     </style>
 </head>
 <body>
@@ -79,6 +85,7 @@
 
         <!-- Table to display vehicles -->
         <h2 class="mt-4">List of Vehicles</h2>
+        <div class="table-responsive">
         <table class="table table-striped">
             <thead>
                 <tr>
