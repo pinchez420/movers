@@ -26,6 +26,8 @@
         table {
             margin-top: 20px;
             border-collapse: collapse; /* Standard table appearance */
+            width: 100%;
+            table-layout: auto;
         }
         th {
             background-color: #007bff; /* Header color */
@@ -58,6 +60,10 @@
         .table-striped tbody tr:nth-of-type(odd) {
             background-color: rgba(0, 123, 255, 0.1); /* Light blue for alternate rows */
         }
+        .table-responsive {
+            overflow-x: auto;
+            width: 100%;
+}
     </style>
 </head>
 <body>
@@ -98,6 +104,7 @@
 
         <!-- Table to display routes -->
         <h2>List of Routes</h2>
+        <div class="table-responsive">
         <table class="table table-striped">
             <thead>
                 <tr>
