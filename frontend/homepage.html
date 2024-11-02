@@ -12,36 +12,31 @@
             font-weight: bold;
             margin: 0;
             padding: 0;
-            background-image: url('istockphoto-1445074332-612x612.jpg'); /* Replace with your preferred background */
+            background-image: url('istockphoto-1445074332-612x612.jpg');
             background-size: cover;
             background-position: center;
-            color: #333;
+            color: #0c0c0c;
         }
         header {
-            background-color: #007bff; /* Blue header background */
+            background-color: #007bff;
             color: white;
             padding: 15px;
             text-align: center;
             font-size: 1.5em;
         }
-        nav {
-            text-align: center;
-            margin: 15px 0;
-            font-size: 1.2em;
-        }
         nav a {
             margin: 0 15px;
             text-decoration: none;
-            color: #070a0e; /* Blue link color */
+            color: #01050a;
             font-weight: bold;
         }
         nav a:hover {
-            color: #260ef7; /* Darker blue on hover */
+            color: #260ef7;
         }
         #map {
             height: 500px;
             width: 100%;
-            border: 2px solid #007bff; /* Blue border around map */
+            border: 2px solid #007bff;
             border-radius: 8px;
             margin-top: 20px;
         }
@@ -55,18 +50,150 @@
 
 <header>
     <h1>Movers Transport System</h1>
-    <a href="index.html" class="btn btn-danger">Logout</a>
 </header>
 
-<nav>
-    <a href="users.html">Users</a>
-    <a href="customers.html">Customers</a>
-    <a href="drivers.html">Drivers</a>
-    <a href="dispatchers.html">Dispatchers</a>
-    <a href="vehicles.html">Vehicles</a>
-    <a href="routes.html">Routes</a>
-    <a href="trips.html">Trips</a>
-    <a href="tripdetails.html">Trip-details</a>
+<!-- Navigation Links -->
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav">
+            <li class="nav-item">
+                <a class="nav-link" href="users.html">Users</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="customers.html">Customers</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="drivers.html">Drivers</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="dispatchers.html">Dispatchers</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="vehicles.html">Vehicles</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="routes.html">Routes</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="trips.html">Trips</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="tripdetails.html">Trip Details</a>
+            </li>
+        </ul>
+        <a href="index.html" class="btn btn-danger ml-auto">Logout</a>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <div id="map"></div>
+</div>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script>
+    // Initialize the map
+    var map = L.map('map').setView([-1.286389, 36.817223], 12); // Default position and zoom
+
+    // Set up the tile layer
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '© OpenStreetMap'
+    }).addTo(map);
+</script>
+
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movers Transport System - Dashboard</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            font-family: 'Times New Roman', serif;
+            font-weight: bold;
+            margin: 0;
+            padding: 0;
+            background-image: url('istockphoto-1445074332-612x612.jpg');
+            background-size: cover;
+            background-position: center;
+            color: #0c0c0c;
+        }
+        header {
+            background-color: #007bff;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-size: 1.5em;
+        }
+        nav a {
+            margin: 0 15px;
+            text-decoration: none;
+            color: #01050a;
+            font-weight: bold;
+        }
+        nav a:hover {
+            color: #260ef7;
+        }
+        #map {
+            height: 500px;
+            width: 100%;
+            border: 2px solid #007bff;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        .btn-danger {
+            float: right;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Movers Transport System</h1>
+</header>
+
+<!-- Navigation Links -->
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav">
+            <li class="nav-item">
+                <a class="nav-link" href="users.html">Users</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="customers.html">Customers</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="drivers.html">Drivers</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="dispatchers.html">Dispatchers</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="vehicles.html">Vehicles</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="routes.html">Routes</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="trips.html">Trips</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="tripdetails.html">Trip Details</a>
+            </li>
+        </ul>
+        <a href="index.html" class="btn btn-danger ml-auto">Logout</a>
+    </div>
 </nav>
 
 <div class="container mt-4">
