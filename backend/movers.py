@@ -1,10 +1,8 @@
 from flask import Flask, jsonify, request, session
 from flask_cors import CORS
-from config import Config
 import mysql.connector
 
 app = Flask(__name__)
-app.config.from_object(Config)
 app.secret_key = "movers"
 CORS(app, supports_credentials=True, resources={r"/*": {"origins": "*"}})
 
@@ -647,4 +645,4 @@ def get_user_name():
 
 
 if __name__ == "__main__":
-    app.run(debug=app.config['DEBUG'])
+    app.run(debug=False)
