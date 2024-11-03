@@ -60,7 +60,8 @@
         .table {
             background-color: white;
             border-radius: 8px;
-            overflow: hidden;
+             overflow-x: auto;
+            width: 100%;
         }
         th, td {
             padding: 12px;
@@ -69,6 +70,10 @@
         th {
             background-color: #007bff;
             color: white;
+        }
+        .table-responsive {
+            overflow-x: auto;
+            width: 100%;
         }
     </style>
 </head>
@@ -90,6 +95,7 @@
         <!-- Table to Display Routes -->
         <div class="table-container">
             <h3 class="mb-4">Route List</h3>
+            <div class="table-responsive">
             <table class="table table-bordered" id="routes-table">
                 <thead>
                     <tr>
