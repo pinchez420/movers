@@ -1,0 +1,14 @@
+{
+    "name": "movers",
+    "version": "1.0.0",
+    "description": "A transport management system for booking and managing trips.",
+    "main": "index.html",
+    "scripts": {
+      "build": "echo 'No build step required'",
+      "start": "echo 'No start script defined'"
+    },
+    "keywords": ["transport", "management", "booking"],
+    "author": "Ignatius Lumosi",
+    "license": "ISC"
+  }
+  
