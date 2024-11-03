@@ -29,6 +29,8 @@
             margin-top: 20px;
             border-collapse: separate; /* Ensures that table cell borders are not collapsed */
             border-spacing: 0; /* Remove spacing between borders */
+            width: 100%;
+            table-layout: auto;
         }
         th {
             background-color: #007bff; /* Header background color */
@@ -47,6 +49,10 @@
         .modal-content {
             border-radius: 10px; /* Rounded corners for the modal */
         }
+        .table-responsive {
+            overflow-x: auto;
+            width: 100%;
+        }
     </style>
 </head>
 <body>
@@ -64,6 +70,7 @@
 
         <!-- Table to display trips -->
         <h2 class="mt-4">List of Trips</h2>
+        <div class="table-responsive">
         <table class="table table-striped">
             <thead>
                 <tr>
