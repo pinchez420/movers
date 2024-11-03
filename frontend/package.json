@@ -1,13 +1,13 @@
 {
   "name": "movers",
   "version": "1.0.0",
-  "description": "\"A transport management system for tracking and managing trips.\"",
+  "description": "A transport management system for tracking and managing trips.",
   "main": "index.html",
   "scripts": {
-  "start": "flask run",
-  "build": "echo 'Build step (if needed)'",
-  "test": "echo 'No tests available'"
-},
+    "start": "flask run",
+    "build": "echo 'Build step (if needed)'",
+    "test": "echo 'No tests available'"
+  },
   "keywords": ["transport", "management", "booking"],
   "author": "Ignatius Lumosi",
   "license": "ISC"
