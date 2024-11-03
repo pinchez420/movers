@@ -44,6 +44,23 @@
             overflow-x: auto;
             width: 100%;
         }
+        /* Control the width of specific table columns */
+        .table-striped th:nth-child(1), 
+        .table-striped td:nth-child(1), 
+        .table-striped th:nth-child(2), 
+        .table-striped td:nth-child(2) {
+        width: 15%; /* Adjust this width as needed */
+        }
+
+        .table-striped th:nth-child(3), 
+        .table-striped td:nth-child(3), 
+        .table-striped th:nth-child(4), 
+        .table-striped td:nth-child(4), 
+        .table-striped th:nth-child(5), 
+        .table-striped td:nth-child(5) {
+            width: 20%; /* Adjust based on other columns */
+        }
+
     </style>
 </head>
 <body>
@@ -117,6 +134,7 @@
                         <!-- Trip entries will be populated here -->
                     </tbody>
                 </table>
+                </div>
             </div>
         </div>
         <div id="customer-search-bar" style="margin-bottom: 20px;">
@@ -145,6 +163,7 @@
                         <!-- Customer entries will be populated here -->
                     </tbody>
                 </table>
+                </div>
             </div>
         </div>
     </div>
